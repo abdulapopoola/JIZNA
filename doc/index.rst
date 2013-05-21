@@ -1,12 +1,12 @@
-.. City Complexities documentation master file, created by
+.. JIZNA documentation master file, created by
    sphinx-quickstart on Tue Mar 12 13:37:51 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to City Complexities's documentation!
+Welcome to JIZNA!
 =============================================
 
-This documentation describes the custom processing framework
+This documentation describes the JIZNA processing framework
 for analyzing city complexities.
 
 Requirements:
