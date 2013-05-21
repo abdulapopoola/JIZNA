@@ -1,5 +1,0 @@
-These plots show city centrality measures as predictors of property crime and violent crime levels.
-
-All crime cases are reported per 100,000 citizens. The data comes from category 309 from the US Census bureau website. https://www.census.gov/compendia/statab/cats/law_enforcement_courts_prisons/crimes_and_crime_rates.html
-
-There are 107 cities with crime values.
