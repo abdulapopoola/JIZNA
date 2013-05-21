@@ -1,0 +1,5 @@
+15274097
+9.9 G -> 7.6GB -> 7.5GB
+	stripped off node tags, lon and lat
+	remove osm ref from ways
+	set unwanted objects to none

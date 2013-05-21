@@ -1,0 +1,336 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>framework &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for framework</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains functions that are essential </span>
+<span class="sd">to the automation of this framework.</span>
+
+<span class="sd">It contains functions that leverage existing functionality to do the following:</span>
+
+<span class="sd">* Process all OSM graph dumps in a specified directory</span>
+<span class="sd">* Convert these processed files into networkx graphs</span>
+<span class="sd">* Calculate the metrics for these graphs </span>
+<span class="sd">* Generate powerlawfit graphs if desired</span>
+
+<span class="sd">This code is copyright (c) 2013, Abdulfatai Popoola under the GPL License</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">from</span> <span class="nn">OSMCleaner</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">plotter</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">Utilities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<div class="viewcode-block" id="getAllOSMFiles"><a class="viewcode-back" href="../framework.html#framework.getAllOSMFiles">[docs]</a><span class="k">def</span> <span class="nf">getAllOSMFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;	getAllOSMFiles</span>
+<span class="sd">		Retrieves all OSM files in the specified directory,</span>
+<span class="sd">		defaults to the current directory if no directory is given.</span>
+<span class="sd">		</span>
+<span class="sd">		:param directory: directory to search for OSM files</span>
+<span class="sd">		:rtype: list of all the OSM filenames</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">fileNames</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">fileName</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	    <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="s">&#39;*.osm&#39;</span><span class="p">):</span>
+        	<span class="n">fileNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">fileNames</span>
+</div>
+<div class="viewcode-block" id="runProcess"><a class="viewcode-back" href="../framework.html#framework.runProcess">[docs]</a><span class="k">def</span> <span class="nf">runProcess</span><span class="p">(</span><span class="n">OSMdir</span><span class="p">,</span> <span class="n">boundingBoxCSVFile</span><span class="p">,</span> <span class="n">plotPowerLaws</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;	runProcess	</span>
+<span class="sd">		Processes all OSM graphs located in a given </span>
+<span class="sd">		directory and returns a list of City objects.</span>
+
+<span class="sd">		:param OSMdir: The directory containing OSM files</span>
+<span class="sd">		:param boundingBoxCSVFile: A CSV file containing a list of city names and their corresponding bounding box coordinates. The city names in this CSV file **must match** the names in the OSMdir absolutely. An example is {u&#39;west&#39;: 18.4287748, u&#39;east&#39;: 18.9478418, u&#39;north&#39;: 54.4472188, u&#39;south&#39;: 54.2749559},gdansk.</span>
+<span class="sd">		:param plotPowerLaws: Flag to determine if powerlaw fit plots will be generated for each city in the OSMdir </span>
+<span class="sd">		:rtype: list of processed City Objects. See :ref:`Core`</span>
+<span class="sd">		</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">OSMfiles</span> <span class="o">=</span> <span class="n">getAllOSMFiles</span><span class="p">(</span><span class="n">OSMdir</span><span class="p">)</span>
+	<span class="n">boundingData</span> <span class="o">=</span> <span class="n">getBoundingAreas</span><span class="p">(</span><span class="n">importListOfDictionariesFromCSV</span><span class="p">(</span><span class="n">boundingBoxCSVFile</span><span class="p">))</span> 
+	<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">numFiles</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">OSMfiles</span><span class="p">))</span>
+	<span class="n">txt</span> <span class="o">=</span> <span class="s">&quot; files out of &quot;</span> <span class="o">+</span> <span class="n">numFiles</span> <span class="o">+</span> <span class="s">&quot; processed&quot;</span>
+	<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">for</span> <span class="n">OSMFileName</span> <span class="ow">in</span> <span class="n">OSMfiles</span><span class="p">:</span>
+		<span class="n">cityName</span> <span class="o">=</span> <span class="n">OSMFileName</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c">#Strip off characters before .; returns lagos for lagos.osm</span>
+		<span class="n">graph</span> <span class="o">=</span> <span class="n">convertMappingToGraph</span><span class="p">(</span><span class="n">getNodeToWayMappings</span><span class="p">(</span><span class="n">OSMdir</span> <span class="o">+</span> <span class="n">OSMFileName</span><span class="p">,</span> <span class="n">boundingData</span><span class="p">[</span><span class="n">cityName</span><span class="p">]))</span>
+		<span class="k">print</span> <span class="s">&#39;graph created&#39;</span>
+		<span class="n">city</span> <span class="o">=</span> <span class="n">City</span><span class="p">(</span><span class="n">cityName</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+		<span class="k">print</span> <span class="s">&quot;City processed&quot;</span>
+		<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">city</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">plotPowerLaws</span><span class="p">:</span>
+			<span class="n">degreeDist</span> <span class="o">=</span> <span class="p">[</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()]</span>
+			<span class="n">plotPowerLaw</span><span class="p">(</span><span class="n">OSMFileName</span><span class="p">,</span> <span class="n">degreeDist</span><span class="p">)</span>
+		<span class="n">graph</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="n">city</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#Free memory?</span>
+		<span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+		<span class="n">progress</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="o">+</span> <span class="n">txt</span> 
+		<span class="k">print</span> <span class="n">progress</span>
+	<span class="k">return</span> <span class="n">data</span>
+</div>
+<div class="viewcode-block" id="getPlots"><a class="viewcode-back" href="../framework.html#framework.getPlots">[docs]</a><span class="k">def</span> <span class="nf">getPlots</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">clusterInfo</span><span class="p">,</span> <span class="n">infoType</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;Plot scatter plots for a list of City objects</span>
+
+<span class="sd">	   :param data: A list of City objects. See :ref:`Core`</span>
+<span class="sd">	   :param xAxisDataDict: A dictionary mapping city names to values for the x-Axis, city names in this dictionary **must match** the city names in the data list exactly</span>
+<span class="sd">	   :param clusterInfo: A dictionary mapping cities to their clustering group; this is used in determing the colours to add to plots; as before, city names in this dictionary **must match** the city names in the data list exactly</span>
+<span class="sd">	   :param infoType: The type of plots to generate; can be those of raw processed information, normalized information or both.</span>
+<span class="sd">	   :rtype: Returns cities for which the powerlaw iteration did not converge</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="c">#xAxisDataDict = [random.randrange(1,200) for _ in range(0, len(data))]</span>
+	<span class="n">rawInfo</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">normalizedInfo</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">powerLawDidNotConverge</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#Cities for which the powerlaw didn&#39;t converge</span>
+	<span class="k">if</span> <span class="n">infoType</span> <span class="o">==</span> <span class="s">&quot;raw&quot;</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+			<span class="n">cityData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">)</span>
+			<span class="n">cityData</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">name</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">cityData</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]:</span>
+				<span class="n">powerLawDidNotConverge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cityData</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">rawInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cityData</span><span class="p">)</span>	
+		<span class="n">status</span> <span class="o">=</span> <span class="n">drawPlots</span><span class="p">(</span><span class="n">rawInfo</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">],</span> <span class="n">clusterInfo</span><span class="p">,</span> <span class="s">&#39;Raw Cities Data vs &#39;</span> <span class="o">+</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">])</span>
+	<span class="k">elif</span> <span class="n">infoType</span> <span class="o">==</span> <span class="s">&quot;normalized&quot;</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+			<span class="n">cityData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">normalizedInformation</span><span class="p">)</span>
+			<span class="n">cityData</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">name</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">city</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]:</span>
+				<span class="n">powerLawDidNotConverge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cityData</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">normalizedInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cityData</span><span class="p">)</span>	
+		<span class="n">status</span> <span class="o">=</span> <span class="n">drawPlots</span><span class="p">(</span><span class="n">normalizedInfo</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">],</span> <span class="n">clusterInfo</span><span class="p">,</span> <span class="s">&#39;Normalized Cities Data vs &#39;</span> <span class="o">+</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">])</span>
+	<span class="k">else</span><span class="p">:</span>	<span class="c">#defaults to all</span>
+		<span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+			<span class="n">normCityData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">normalizedInformation</span><span class="p">)</span>
+			<span class="n">normCityData</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">name</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">city</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]:</span>
+				<span class="n">powerLawDidNotConverge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normCityData</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">normalizedInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normCityData</span><span class="p">)</span>				
+			<span class="n">rawCityData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">)</span>
+			<span class="n">rawCityData</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">name</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">rawCityData</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]:</span>
+				<span class="n">powerLawDidNotConverge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rawCityData</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">rawInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rawCityData</span><span class="p">)</span>	
+		<span class="n">status</span> <span class="o">=</span> <span class="n">drawPlots</span><span class="p">(</span><span class="n">normalizedInfo</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">],</span> <span class="n">clusterInfo</span><span class="p">,</span> <span class="s">&#39;Normalized Cities Data vs &#39;</span> <span class="o">+</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">])</span>
+		<span class="n">status</span> <span class="o">=</span> <span class="n">drawPlots</span><span class="p">(</span><span class="n">rawInfo</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">],</span> <span class="n">clusterInfo</span><span class="p">,</span> <span class="s">&#39;Raw Cities Data vs &#39;</span> <span class="o">+</span> <span class="n">xAxisDataDict</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">])</span>
+	<span class="k">return</span> <span class="n">powerLawDidNotConverge</span>
+
+</div>
+<div class="viewcode-block" id="drawPlots"><a class="viewcode-back" href="../framework.html#framework.drawPlots">[docs]</a><span class="k">def</span> <span class="nf">drawPlots</span><span class="p">(</span><span class="n">citiesInfoList</span><span class="p">,</span> <span class="n">xAxisDataDict</span><span class="p">,</span> <span class="n">xAxisLabel</span><span class="p">,</span> <span class="n">clusterInfoDict</span><span class="p">,</span> <span class="n">plotFileName</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39; This function generates all plots based on the information given. This function generates pdf, eps and svg copies of the same plot.</span>
+
+<span class="sd">	   :param citiesInfoList: A list of dictionaries containing values that will be plotted on the vertical axis&#39;</span>
+<span class="sd">	   :param xAxisDataDict: A dictionary mapping city names to values for the x-Axis, city names in this dictionary **must match** the city names in the data list exactly</span>
+<span class="sd">	   :param xAxisLabel: The label for the xAxis data.</span>
+<span class="sd">	   :param clusterInfoDict: A dictionary mapping cities to their clustering group; this is used in determing the colours to add to plots; as before, city names in this dictionary **must match** the city names in the data list exactly</span>
+<span class="sd">	   :param plotFileName: The name for the generated plot file</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xAxisDataDict</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">citiesInfoList</span><span class="p">):</span> <span class="c">#remove 1 to remove the dataType entry which says what kind of data is in the xAxisDataDict e.g population, area</span>
+		<span class="k">raise</span> <span class="s">&quot;Error, number of values for xAxis does not match the number of cities: too few values&quot;</span>
+	<span class="k">print</span> <span class="s">&quot;Processing Plots&quot;</span>
+	<span class="n">allDataForPlots</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;entropy&#39;</span><span class="p">,</span> <span class="s">&#39;stddev&#39;</span><span class="p">,</span> <span class="s">&#39;mean&#39;</span><span class="p">,</span> <span class="s">&#39;cv&#39;</span><span class="p">,</span> <span class="s">&#39;gini&#39;</span><span class="p">]</span> <span class="c">#think of range later</span>
+	<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+		<span class="n">metricValues</span> <span class="o">=</span> <span class="n">getValuesForAllCities</span><span class="p">(</span><span class="n">citiesInfoList</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+		<span class="n">metricLabels</span> <span class="o">=</span> <span class="p">[</span><span class="n">cityData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">cityData</span> <span class="ow">in</span> <span class="n">metricValues</span><span class="p">]</span> <span class="c">#City names</span>
+		<span class="n">metricValue</span> <span class="o">=</span> <span class="p">[</span><span class="n">cityData</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">cityData</span> <span class="ow">in</span> <span class="n">metricValues</span><span class="p">]</span> <span class="c">#Metric values e.g. all entropy values for all cities</span>
+		<span class="n">xAxisData</span> <span class="o">=</span> <span class="p">[</span><span class="n">xAxisDataDict</span><span class="p">[</span><span class="n">cityName</span><span class="p">]</span> <span class="k">for</span> <span class="n">cityName</span> <span class="ow">in</span> <span class="n">metricLabels</span><span class="p">]</span>
+		<span class="n">clusterList</span> <span class="o">=</span> <span class="p">[</span><span class="n">clusterInfoDict</span><span class="p">[</span><span class="n">cityName</span><span class="p">]</span> <span class="k">for</span> <span class="n">cityName</span> <span class="ow">in</span> <span class="n">clusterInfoDict</span><span class="p">]</span>
+		<span class="c">#print xAxisData, metricLabels, metricValue</span>
+		<span class="n">metricScatterPlotData</span> <span class="o">=</span> <span class="n">buildScatterPlotData</span><span class="p">(</span><span class="n">xAxisData</span><span class="p">,</span> <span class="n">metricValue</span><span class="p">,</span> <span class="n">metricLabels</span><span class="p">,</span> <span class="n">clusterList</span> <span class="p">,</span><span class="n">xAxisLabel</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span> <span class="c">#metric is yAxisLabel e.g entropy or stddev</span>
+		<span class="n">allDataForPlots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metricScatterPlotData</span><span class="p">)</span>
+	<span class="n">plotScatterPlot</span><span class="p">(</span><span class="n">allDataForPlots</span><span class="p">,</span> <span class="n">plotFileName</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="getValuesForAllCities"><a class="viewcode-back" href="../framework.html#framework.getValuesForAllCities">[docs]</a><span class="k">def</span> <span class="nf">getValuesForAllCities</span><span class="p">(</span><span class="n">citiesList</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39; Gets all the cities values for a tag e.g. entropy</span>
+<span class="sd">	    citiesList is a list of city dictionaries	</span>
+
+<span class="sd">	    :param citiesList: A list of processed cities.</span>
+<span class="sd">	    :param tag: The tag to be extracted.</span>
+<span class="sd">	    :rtype: A list of tuples with each tag containing the city name and the tag value for that city.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">value</span> <span class="o">=</span> <span class="p">[(</span><span class="n">city</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span> <span class="n">city</span><span class="p">[</span><span class="n">tag</span><span class="p">])</span> <span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">citiesList</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="buildScatterPlotData"><a class="viewcode-back" href="../framework.html#framework.buildScatterPlotData">[docs]</a><span class="k">def</span> <span class="nf">buildScatterPlotData</span><span class="p">(</span><span class="n">xAxisDataList</span><span class="p">,</span> <span class="n">yAxisDataList</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">clustersKeyList</span><span class="p">,</span> <span class="n">xAxisLabel</span><span class="p">,</span> <span class="n">yAxisLabel</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Creates a dictionary containing all the data needed to make a scatter plot</span>
+
+<span class="sd">		:param xAxisDataList: A list of values for the x Axis data</span>
+<span class="sd">		:param yAxisDataList: A list of values for the y Axis data</span>
+<span class="sd">		:param labels: labels for each entry in the lists above</span>
+<span class="sd">		:param clustersKeyList: keys for each clustering unit for the data</span>
+<span class="sd">		:param xAxisLabel: label for the xAxisData</span>
+<span class="sd">		:param yAxisLabel: label for the yAxisData</span>
+<span class="sd">		:rtype: A dictionary containing all the above values</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">plotData</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;xValues&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xAxisDataList</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;yValues&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yAxisDataList</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;groupColorKey&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clustersKeyList</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+	<span class="n">title</span> <span class="o">=</span> <span class="n">yAxisLabel</span> <span class="o">+</span> <span class="s">&quot; vs &quot;</span> <span class="o">+</span> <span class="n">xAxisLabel</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;plotTitle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">title</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;xAxisLabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xAxisLabel</span>
+	<span class="n">plotData</span><span class="p">[</span><span class="s">&#39;yAxisLabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yAxisLabel</span>
+	<span class="k">return</span> <span class="n">plotData</span>
+</div>
+<div class="viewcode-block" id="getXPlotsListOfDictionaries"><a class="viewcode-back" href="../framework.html#framework.getXPlotsListOfDictionaries">[docs]</a><span class="k">def</span> <span class="nf">getXPlotsListOfDictionaries</span><span class="p">(</span><span class="n">CSVFile</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Reads a CSV file to get all the corresponding xAxisValues for the processed cities. This information is passed to the graph plotting function to serve as data for the horizontal x Axis.</span>
+<span class="sd">		</span>
+<span class="sd">		:param CSVFile: CSVFile is a CSV file containing city names and their associated data such as area, population</span>
+<span class="sd">		:rtype: A list of dictionaries for each possible city and column pairing in the CSVFile, each list corresponds to a column in the CSVFile and each dictionary in a list contains the city name and the corresponding data for that column.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="n">values</span> <span class="o">=</span> <span class="n">importListOfDictionariesFromCSV</span><span class="p">(</span><span class="n">CSVFile</span><span class="p">)</span>
+	<span class="n">keys</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="c">#All column names</span>
+	<span class="n">dictList</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;city&#39;</span><span class="p">:</span>
+			<span class="k">continue</span> <span class="c">#city name column not a datatype</span>
+		<span class="n">xPlotValues</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">xPlotValues</span><span class="p">[</span><span class="s">&#39;dataType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+		<span class="k">for</span> <span class="n">cityData</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">cityData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+				<span class="k">continue</span>
+			<span class="n">cityName</span> <span class="o">=</span> <span class="n">cityData</span><span class="p">[</span><span class="s">&#39;city&#39;</span><span class="p">]</span>
+			<span class="n">cityKeyValue</span> <span class="o">=</span> <span class="n">cityData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+			<span class="n">xPlotValues</span><span class="p">[</span><span class="n">cityName</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cityKeyValue</span><span class="p">)</span>
+		<span class="n">dictList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xPlotValues</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">dictList</span>
+</div>
+<div class="viewcode-block" id="generatePlots"><a class="viewcode-back" href="../framework.html#framework.generatePlots">[docs]</a><span class="k">def</span> <span class="nf">generatePlots</span><span class="p">(</span><span class="n">xPlotsList</span><span class="p">,</span> <span class="n">processedCityData</span><span class="p">,</span> <span class="n">infoType</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Generates plots based on processedCityData and the values for the horizontal axis.</span>
+<span class="sd">		:param xPlotsList: A list of dictionaries corresponding to specific data. Each list holds information that will be used to represent a city on the horizontal axis. Plots will be generated for each dictionary in this list.</span>
+<span class="sd">		:param processedCityData: A list of City objects.</span>
+<span class="sd">		:param infoType: The type of plots to generate: raw City Information, normalized City Information or both.</span>
+<span class="sd">		:rtype: A list of City objects which have invalid data and can not appear on plots.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">xPlotList</span> <span class="ow">in</span> <span class="n">xPlotsList</span><span class="p">:</span>
+		<span class="n">cities</span> <span class="o">=</span> <span class="n">xPlotList</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+		<span class="n">correspondingCitiesData</span> <span class="o">=</span> <span class="p">[</span><span class="n">city</span> <span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">processedCityData</span> <span class="k">if</span> <span class="n">city</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">cities</span> <span class="ow">and</span> <span class="n">city</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]]</span>
+		<span class="n">countryClustering</span> <span class="o">=</span> <span class="n">importListOfDictionariesFromCSV</span><span class="p">(</span><span class="s">&#39;countriesAndCities.csv&#39;</span><span class="p">)</span>
+		<span class="n">validCities</span> <span class="o">=</span> <span class="p">[</span><span class="n">city</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">city</span> <span class="ow">in</span> <span class="n">correspondingCitiesData</span><span class="p">]</span>
+		<span class="n">fullClusterPayload</span> <span class="o">=</span> <span class="n">getClustersAsDict</span><span class="p">(</span><span class="n">countryClustering</span><span class="p">,</span> <span class="s">&#39;country&#39;</span><span class="p">)</span>
+		<span class="n">clusterPayload</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fullClusterPayload</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">validCities</span><span class="p">:</span>
+				<span class="n">clusterPayload</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="n">fullClusterPayload</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+		<span class="k">print</span> <span class="n">clusterPayload</span>
+		<span class="n">noConv</span> <span class="o">=</span> <span class="n">getPlots</span><span class="p">(</span><span class="n">correspondingCitiesData</span><span class="p">,</span> <span class="n">xPlotList</span><span class="p">,</span> <span class="n">clusterPayload</span><span class="p">,</span> <span class="n">infoType</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">noConv</span>
+
+<span class="c">#data=runProcess(&#39;../&#39;, &#39;cityBoundaries.csv&#39;, False)</span>
+<span class="c">#noConv = getPlots(data,xAxisDataDict)</span>
+<span class="c">#fl = open(&#39;processedCities.pickle&#39;, &#39;rb&#39;)</span>
+<span class="c">#data = pickle.load(fl)</span>
+<span class="c">#fl.close()</span>
+<span class="c">#payload = getXPlotsListOfDictionaries(&#39;xAxisData.csv&#39;)</span>
+<span class="c">#generatePlots(payload, data)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

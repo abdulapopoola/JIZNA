@@ -1,0 +1,195 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Core &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="OSMCleaner" href="OSMCleaner.html" />
+    <link rel="prev" title="Framework" href="framework.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="OSMCleaner.html" title="OSMCleaner"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="framework.html" title="Framework"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="core">
+<span id="id1"></span><h1>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-core"></span><p>This city class handles all processing and calculation of metrics for graphs.</p>
+<dl class="class">
+<dt id="core.City">
+<em class="property">class </em><tt class="descclassname">core.</tt><tt class="descname">City</tt><big>(</big><em>name</em>, <em>graph</em><big>)</big><a class="reference internal" href="_modules/core.html#City"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.City" title="Permalink to this definition">¶</a></dt>
+<dd><p>City class; this takes in a graph and the name of the city
+and calculates all the information for that graph. Each city contains the following fields: name, graphProperties, rawInformation and normalizedInformation.
+Cities contain an opStatus field in their rawInformation field that indicates whether the graph for that city was processed successfully.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; The name of the city</li>
+<li><strong>graph</strong> &#8211; The networkx graph for that city</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="core.City.calcGraphInformation">
+<tt class="descname">calcGraphInformation</tt><big>(</big><em>graph</em><big>)</big><a class="reference internal" href="_modules/core.html#City.calcGraphInformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.City.calcGraphInformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calcuates graph metrics for the input graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph</strong> &#8211; The graph to process.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dictionary containing processed values. One of the calculations is the eigenvector centrality using the power law. If the values for a graph don&#8217;t converge in less than 1000 iterations, this operation fails and the city&#8217;s opStatus field will be false.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.City.normalizeValues">
+<tt class="descname">normalizeValues</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core.html#City.normalizeValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.City.normalizeValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes city data information; this is achieved by dividing the rawInformation metrics with the data from the fully connected graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.City.processFullyConnectedGraph">
+<tt class="descname">processFullyConnectedGraph</tt><big>(</big><em>nodesInConnGraph</em><big>)</big><a class="reference internal" href="_modules/core.html#City.processFullyConnectedGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.City.processFullyConnectedGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates graph metrics for a full connected graph of size nodesInConnGraph. This is used to normalize values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodesInConnGraph</strong> &#8211; The number of nodes the fully connected graph should have.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dictionary containing processed values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.City.processGraphMetrics">
+<tt class="descname">processGraphMetrics</tt><big>(</big><em>graph</em><big>)</big><a class="reference internal" href="_modules/core.html#City.processGraphMetrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.City.processGraphMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates graph metrics like number of nodes and edges, total degree, average degree, connected components and the size of the giant components.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph</strong> &#8211; the networkx graph for a city</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dictionary containing processed metrics for the graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="framework.html"
+                        title="previous chapter">Framework</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="OSMCleaner.html"
+                        title="next chapter">OSMCleaner</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="OSMCleaner.html" title="OSMCleaner"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="framework.html" title="Framework"
+             >previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

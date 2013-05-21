@@ -1,0 +1,231 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OSMCleaner &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Utilities" href="Utilities.html" />
+    <link rel="prev" title="Core" href="core.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="Core"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="osmcleaner">
+<span id="id1"></span><h1>OSMCleaner<a class="headerlink" href="#osmcleaner" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-OSMCleaner"></span><p>Read graphs in Open Street Maps osm format</p>
+<p>Based on osm.py from brianw&#8217;s osmgeocode
+<a class="reference external" href="http://github.com/brianw/osmgeocode">http://github.com/brianw/osmgeocode</a>, which is based on osm.py from
+comes from Graphserver:
+<a class="reference external" href="http://github.com/bmander/graphserver/tree/master">http://github.com/bmander/graphserver/tree/master</a> and is copyright (c)
+2007, Brandon Martin-Anderson under the BSD License</p>
+<dl class="function">
+<dt id="OSMCleaner.collapseEquivalentNodes">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">collapseEquivalentNodes</tt><big>(</big><em>ways</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#collapseEquivalentNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.collapseEquivalentNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function merges road objects that have different IDs in the XML dump but are segments of the same road.
+This is achieved using the named-streets approach: two intersecting road objects which have the same name are merged into a single road object and the corresponding node (latlng) locations in one of the roads are copied to the other road.
+This process iterates over the list of roads and repeats the merging operation until there are no further merges possible, this is detected when the number of possible streets doesn&#8217;t change on further successive merges.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ways</strong> &#8211; The list of road objects to use.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list of roads that are redundant and have been merged with other roads.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="OSMCleaner.convertMappingToGraph">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">convertMappingToGraph</tt><big>(</big><em>nodeToWayMap</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#convertMappingToGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.convertMappingToGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a networkx graph from a dictionary that maps nodes to their parent roads. The dual graph (which represents roads as nodes and intersections as edges) is created by identifying intersecting roads by the presence of shared nodes (latlng) points and then creating edges between all possible combinations of intersecting roads.
+:param nodeToWayMap: A dictionary that maps nodes (latlng) points to the roads they fall in.
+:rtype: A networkx dual graph of the city.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="OSMCleaner.getNodeToWayMappings">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">getNodeToWayMappings</tt><big>(</big><em>filehandle</em>, <em>bbox</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#getNodeToWayMappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.getNodeToWayMappings" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function parses OSM XML files, strips nodes and roads that fall outside the bounding box, merges redundant roads and then creates a dictionary mapping each node (latlng point) to its corresponding road.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filehandle</strong> &#8211; The OSM XML dump to read</li>
+<li><strong>bbox</strong> &#8211; The boundingbox, the dictionary containing boundaries.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A dictionary mapping each node inside the boundary box to its parent road.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="OSMCleaner.removeIsolatedNodes">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">removeIsolatedNodes</tt><big>(</big><em>graph</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#removeIsolatedNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.removeIsolatedNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes zero-degree nodes from a graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph</strong> &#8211; The networkx graph to filter</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">The list of isolated nodes in the graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="OSMCleaner.removeNodesWithSpecificHighwayTags">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">removeNodesWithSpecificHighwayTags</tt><big>(</big><em>graph</em>, <em>tag</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#removeNodesWithSpecificHighwayTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.removeNodesWithSpecificHighwayTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes nodes with a specific property from a graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>graph</strong> &#8211; The networkx graph to filter</li>
+<li><strong>tag</strong> &#8211; The tag to filter on</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">The list of nodes with the tag which have been removed</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="OSMCleaner.stripOutliers">
+<tt class="descclassname">OSMCleaner.</tt><tt class="descname">stripOutliers</tt><big>(</big><em>nodeStore</em>, <em>boundingbox</em><big>)</big><a class="reference internal" href="_modules/OSMCleaner.html#stripOutliers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OSMCleaner.stripOutliers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identifies nodes whose latlng points fall outside the boundingbox.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nodeStore</strong> &#8211; A dictionary containing all node objects and their corresponding latlng information.</li>
+<li><strong>boundingbox</strong> &#8211; A list of coordinates that specify the bounding box for a particular city.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A set of nodes that fall outside the bounding box.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="core.html"
+                        title="previous chapter">Core</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Utilities.html"
+                        title="next chapter">Utilities</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="Core"
+             >previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

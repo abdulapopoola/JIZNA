@@ -1,0 +1,12 @@
+The dependent variable (i.e. city metrics like entropy) is plotted as is on the y axis
+Plots for area and population are loglog except for the gini index which is a semilog scale; founding century is not.
+Spline plots show the cities and the interpolated curve.
+
+FIELDS
+rawEntropy : Entropy of city before normalization against fully connected graph
+Entropy: Normalized Entropy
+cv: Coefficient of Variation
+mean: Mean of unit eigenvector of centrality values
+freeman_centrality: freeman centrality value for graph
+gini: Gini index
+stddev: Standard deviation of unit eigenvector of centrality values

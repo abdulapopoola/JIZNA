@@ -1,0 +1,287 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Framework &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Core" href="core.html" />
+    <link rel="prev" title="Project" href="project.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="Core"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="project.html" title="Project"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-framework">
+<span id="framework"></span><h1>Framework<a class="headerlink" href="#module-framework" title="Permalink to this headline">¶</a></h1>
+<p>This module contains functions that are essential 
+to the automation of this framework.</p>
+<p>It contains functions that leverage existing functionality to do the following:</p>
+<ul class="simple">
+<li>Process all OSM graph dumps in a specified directory</li>
+<li>Convert these processed files into networkx graphs</li>
+<li>Calculate the metrics for these graphs</li>
+<li>Generate powerlawfit graphs if desired</li>
+</ul>
+<p>This code is copyright (c) 2013, Abdulfatai Popoola under the GPL License</p>
+<dl class="function">
+<dt id="framework.buildScatterPlotData">
+<tt class="descclassname">framework.</tt><tt class="descname">buildScatterPlotData</tt><big>(</big><em>xAxisDataList</em>, <em>yAxisDataList</em>, <em>labels</em>, <em>clustersKeyList</em>, <em>xAxisLabel</em>, <em>yAxisLabel</em><big>)</big><a class="reference internal" href="_modules/framework.html#buildScatterPlotData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.buildScatterPlotData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a dictionary containing all the data needed to make a scatter plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xAxisDataList</strong> &#8211; A list of values for the x Axis data</li>
+<li><strong>yAxisDataList</strong> &#8211; A list of values for the y Axis data</li>
+<li><strong>labels</strong> &#8211; labels for each entry in the lists above</li>
+<li><strong>clustersKeyList</strong> &#8211; keys for each clustering unit for the data</li>
+<li><strong>xAxisLabel</strong> &#8211; label for the xAxisData</li>
+<li><strong>yAxisLabel</strong> &#8211; label for the yAxisData</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A dictionary containing all the above values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.drawPlots">
+<tt class="descclassname">framework.</tt><tt class="descname">drawPlots</tt><big>(</big><em>citiesInfoList</em>, <em>xAxisDataDict</em>, <em>xAxisLabel</em>, <em>clusterInfoDict</em>, <em>plotFileName</em><big>)</big><a class="reference internal" href="_modules/framework.html#drawPlots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.drawPlots" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generates all plots based on the information given. This function generates pdf, eps and svg copies of the same plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>citiesInfoList</strong> &#8211; A list of dictionaries containing values that will be plotted on the vertical axis&#8217;</li>
+<li><strong>xAxisDataDict</strong> &#8211; A dictionary mapping city names to values for the x-Axis, city names in this dictionary <strong>must match</strong> the city names in the data list exactly</li>
+<li><strong>xAxisLabel</strong> &#8211; The label for the xAxis data.</li>
+<li><strong>clusterInfoDict</strong> &#8211; A dictionary mapping cities to their clustering group; this is used in determing the colours to add to plots; as before, city names in this dictionary <strong>must match</strong> the city names in the data list exactly</li>
+<li><strong>plotFileName</strong> &#8211; The name for the generated plot file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.generatePlots">
+<tt class="descclassname">framework.</tt><tt class="descname">generatePlots</tt><big>(</big><em>xPlotsList</em>, <em>processedCityData</em>, <em>infoType=''</em><big>)</big><a class="reference internal" href="_modules/framework.html#generatePlots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.generatePlots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates plots based on processedCityData and the values for the horizontal axis.
+:param xPlotsList: A list of dictionaries corresponding to specific data. Each list holds information that will be used to represent a city on the horizontal axis. Plots will be generated for each dictionary in this list.
+:param processedCityData: A list of City objects.
+:param infoType: The type of plots to generate: raw City Information, normalized City Information or both.
+:rtype: A list of City objects which have invalid data and can not appear on plots.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.getAllOSMFiles">
+<tt class="descclassname">framework.</tt><tt class="descname">getAllOSMFiles</tt><big>(</big><em>directory='.'</em><big>)</big><a class="reference internal" href="_modules/framework.html#getAllOSMFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.getAllOSMFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all OSM files in the specified directory,
+defaults to the current directory if no directory is given.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> &#8211; directory to search for OSM files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of all the OSM filenames</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.getPlots">
+<tt class="descclassname">framework.</tt><tt class="descname">getPlots</tt><big>(</big><em>data</em>, <em>xAxisDataDict</em>, <em>clusterInfo</em>, <em>infoType=''</em><big>)</big><a class="reference internal" href="_modules/framework.html#getPlots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.getPlots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot scatter plots for a list of City objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; A list of City objects. See <a class="reference internal" href="core.html#core"><em>Core</em></a></li>
+<li><strong>xAxisDataDict</strong> &#8211; A dictionary mapping city names to values for the x-Axis, city names in this dictionary <strong>must match</strong> the city names in the data list exactly</li>
+<li><strong>clusterInfo</strong> &#8211; A dictionary mapping cities to their clustering group; this is used in determing the colours to add to plots; as before, city names in this dictionary <strong>must match</strong> the city names in the data list exactly</li>
+<li><strong>infoType</strong> &#8211; The type of plots to generate; can be those of raw processed information, normalized information or both.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Returns cities for which the powerlaw iteration did not converge</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.getValuesForAllCities">
+<tt class="descclassname">framework.</tt><tt class="descname">getValuesForAllCities</tt><big>(</big><em>citiesList</em>, <em>tag</em><big>)</big><a class="reference internal" href="_modules/framework.html#getValuesForAllCities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.getValuesForAllCities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all the cities values for a tag e.g. entropy
+citiesList is a list of city dictionaries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>citiesList</strong> &#8211; A list of processed cities.</li>
+<li><strong>tag</strong> &#8211; The tag to be extracted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A list of tuples with each tag containing the city name and the tag value for that city.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.getXPlotsListOfDictionaries">
+<tt class="descclassname">framework.</tt><tt class="descname">getXPlotsListOfDictionaries</tt><big>(</big><em>CSVFile</em><big>)</big><a class="reference internal" href="_modules/framework.html#getXPlotsListOfDictionaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.getXPlotsListOfDictionaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a CSV file to get all the corresponding xAxisValues for the processed cities. This information is passed to the graph plotting function to serve as data for the horizontal x Axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CSVFile</strong> &#8211; CSVFile is a CSV file containing city names and their associated data such as area, population</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A list of dictionaries for each possible city and column pairing in the CSVFile, each list corresponds to a column in the CSVFile and each dictionary in a list contains the city name and the corresponding data for that column.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="framework.runProcess">
+<tt class="descclassname">framework.</tt><tt class="descname">runProcess</tt><big>(</big><em>OSMdir</em>, <em>boundingBoxCSVFile</em>, <em>plotPowerLaws=False</em><big>)</big><a class="reference internal" href="_modules/framework.html#runProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#framework.runProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes all OSM graphs located in a given 
+directory and returns a list of City objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>OSMdir</strong> &#8211; The directory containing OSM files</li>
+<li><strong>boundingBoxCSVFile</strong> &#8211; A CSV file containing a list of city names and their corresponding bounding box coordinates. The city names in this CSV file <strong>must match</strong> the names in the OSMdir absolutely. An example is {u&#8217;west&#8217;: 18.4287748, u&#8217;east&#8217;: 18.9478418, u&#8217;north&#8217;: 54.4472188, u&#8217;south&#8217;: 54.2749559},gdansk.</li>
+<li><strong>plotPowerLaws</strong> &#8211; Flag to determine if powerlaw fit plots will be generated for each city in the OSMdir</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of processed City Objects. See <a class="reference internal" href="core.html#core"><em>Core</em></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="project.html"
+                        title="previous chapter">Project</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="core.html"
+                        title="next chapter">Core</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="Core"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="project.html" title="Project"
+             >previous</a> |</li>
+        <li><a href="index.html">City Complexities 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,314 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OSMCleaner &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for OSMCleaner</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Read graphs in Open Street Maps osm format</span>
+
+<span class="sd">Based on osm.py from brianw&#39;s osmgeocode</span>
+<span class="sd">http://github.com/brianw/osmgeocode, which is based on osm.py from</span>
+<span class="sd">comes from Graphserver:</span>
+<span class="sd">http://github.com/bmander/graphserver/tree/master and is copyright (c)</span>
+<span class="sd">2007, Brandon Martin-Anderson under the BSD License</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">xml.sax</span>
+<span class="kn">import</span> <span class="nn">networkx</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="n">lon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="n">lat</span>
+	
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">return</span> <span class="s">&quot;Node element: id&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+       
+<span class="k">class</span> <span class="nc">Way</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">return</span> <span class="s">&quot;Way id: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; Node points: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nds</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">OSM</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename_or_stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; File can be either a filename or stream/file object.&quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ways</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="n">superself</span> <span class="o">=</span> <span class="bp">self</span>
+        
+        <span class="k">class</span> <span class="nc">OSMHandler</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">ContentHandler</span><span class="p">):</span>
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">setDocumentLocator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">loc</span><span class="p">):</span>
+                <span class="k">pass</span>
+            
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">startDocument</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">pass</span>
+                
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">endDocument</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">pass</span>
+                
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">startElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;node&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;lon&#39;</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;lat&#39;</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;way&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span> <span class="o">=</span> <span class="n">Way</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;tag&#39;</span><span class="p">:</span>
+		    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currElem</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">):</span>
+			    <span class="c">#Optimize by using tuples?</span>
+	                    <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;k&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s">&#39;v&#39;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;nd&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span><span class="o">.</span><span class="n">nds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s">&#39;ref&#39;</span><span class="p">])</span>
+                
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">endElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;node&#39;</span><span class="p">:</span>
+                    <span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">currElem</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span>
+                <span class="k">elif</span> <span class="n">name</span><span class="o">==</span><span class="s">&#39;way&#39;</span><span class="p">:</span>
+                    <span class="n">ways</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">currElem</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currElem</span>
+                
+            <span class="nd">@classmethod</span>
+            <span class="k">def</span> <span class="nf">characters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename_or_stream</span><span class="p">,</span> <span class="n">OSMHandler</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ways</span> <span class="o">=</span> <span class="n">ways</span>          
+
+<div class="viewcode-block" id="stripOutliers"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.stripOutliers">[docs]</a><span class="k">def</span> <span class="nf">stripOutliers</span><span class="p">(</span><span class="n">nodeStore</span><span class="p">,</span> <span class="n">boundingbox</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Identifies nodes whose latlng points fall outside the boundingbox.</span>
+
+<span class="sd">		:param nodeStore: A dictionary containing all node objects and their corresponding latlng information.</span>
+<span class="sd">		:param boundingbox: A list of coordinates that specify the bounding box for a particular city.</span>
+<span class="sd">		:rtype: A set of nodes that fall outside the bounding box.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">outliers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+	<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodeStore</span><span class="p">:</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">nodeStore</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+			<span class="k">continue</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">boundingbox</span><span class="p">[</span><span class="s">&#39;north&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">nodeStore</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">lat</span> <span class="o">&gt;=</span> <span class="n">boundingbox</span><span class="p">[</span><span class="s">&#39;south&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">boundingbox</span><span class="p">[</span><span class="s">&#39;east&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">nodeStore</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">lon</span> <span class="o">&gt;=</span> <span class="n">boundingbox</span><span class="p">[</span><span class="s">&#39;west&#39;</span><span class="p">]):</span>
+			<span class="n">outliers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">nodeStore</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">outliers</span>
+</div>
+<div class="viewcode-block" id="getNodeToWayMappings"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.getNodeToWayMappings">[docs]</a><span class="k">def</span> <span class="nf">getNodeToWayMappings</span><span class="p">(</span><span class="n">filehandle</span><span class="p">,</span> <span class="n">bbox</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		This function parses OSM XML files, strips nodes and roads that fall outside the bounding box, merges redundant roads and then creates a dictionary mapping each node (latlng point) to its corresponding road.</span>
+
+<span class="sd">		:param filehandle: The OSM XML dump to read</span>
+<span class="sd">		:param bbox: The boundingbox, the dictionary containing boundaries.</span>
+<span class="sd">		:rtype: A dictionary mapping each node inside the boundary box to its parent road.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">big_dict</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">osm</span> <span class="o">=</span> <span class="n">OSM</span><span class="p">(</span><span class="n">filehandle</span><span class="p">)</span>	<span class="c">#Parse XML file</span>
+	<span class="k">print</span> <span class="s">&quot;XML dump parsed&quot;</span>
+	<span class="n">redundantNodes</span> <span class="o">=</span> <span class="n">collapseEquivalentNodes</span><span class="p">(</span><span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="p">)</span>
+	<span class="n">outliers</span> <span class="o">=</span> <span class="n">stripOutliers</span><span class="p">(</span><span class="n">osm</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span>
+	<span class="k">while</span> <span class="n">redundantNodes</span><span class="p">:</span>
+		<span class="k">print</span> <span class="s">&#39;Cooking&#39;</span>
+		<span class="n">newWays</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="ow">in</span> <span class="n">redundantNodes</span><span class="p">:</span>
+				<span class="k">continue</span>
+			<span class="n">newWays</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+		<span class="n">osm</span><span class="o">.</span><span class="n">ways</span> <span class="o">=</span> <span class="n">newWays</span>
+		<span class="n">redundantNodes</span> <span class="o">=</span> <span class="n">collapseEquivalentNodes</span><span class="p">(</span><span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">wayNode</span> <span class="ow">in</span> <span class="n">osm</span><span class="o">.</span><span class="n">ways</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span> <span class="c">#list of all the ways in the list</span>
+		<span class="k">if</span> <span class="s">&#39;highway&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wayNode</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+			<span class="k">continue</span>
+		<span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">wayNode</span><span class="o">.</span><span class="n">nds</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">outliers</span><span class="p">):</span>
+			<span class="k">continue</span>	<span class="c">#All the nodes in this road are outside the bounding box</span>
+		<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">wayNode</span><span class="o">.</span><span class="n">nds</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">outliers</span><span class="p">:</span>
+				<span class="k">continue</span>	<span class="c">#Skip outlying nodes</span>
+			<span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">big_dict</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">wayNode</span> <span class="ow">in</span> <span class="n">big_dict</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+					<span class="k">continue</span>	<span class="c">#already processed</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">big_dict</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wayNode</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">big_dict</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">wayNode</span><span class="p">]</span>
+	<span class="n">osm</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#optimization?</span>
+	<span class="k">return</span> <span class="n">big_dict</span>
+</div>
+<div class="viewcode-block" id="collapseEquivalentNodes"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.collapseEquivalentNodes">[docs]</a><span class="k">def</span> <span class="nf">collapseEquivalentNodes</span><span class="p">(</span><span class="n">ways</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		This function merges road objects that have different IDs in the XML dump but are segments of the same road.</span>
+<span class="sd">		This is achieved using the named-streets approach: two intersecting road objects which have the same name are merged into a single road object and the corresponding node (latlng) locations in one of the roads are copied to the other road.</span>
+<span class="sd">		This process iterates over the list of roads and repeats the merging operation until there are no further merges possible, this is detected when the number of possible streets doesn&#39;t change on further successive merges.</span>
+
+<span class="sd">		:param ways: The list of road objects to use.</span>
+<span class="sd">		:rtype: A list of roads that are redundant and have been merged with other roads.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">nodeNames</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">way</span> <span class="ow">in</span> <span class="n">ways</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">ways</span><span class="p">[</span><span class="n">way</span><span class="p">]</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">):</span>
+			<span class="n">streetName</span> <span class="o">=</span> <span class="n">ways</span><span class="p">[</span><span class="n">way</span><span class="p">]</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+			<span class="k">if</span> <span class="n">nodeNames</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">streetName</span><span class="p">):</span>
+				<span class="n">nodeNames</span><span class="p">[</span><span class="n">streetName</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ways</span><span class="p">[</span><span class="n">way</span><span class="p">])</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">nodeNames</span><span class="p">[</span><span class="n">streetName</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ways</span><span class="p">[</span><span class="n">way</span><span class="p">]]</span>
+	<span class="n">equivalentStreetsList</span> <span class="o">=</span> <span class="p">[]</span>	<span class="c">#List of list containing all equiv streets</span>
+	<span class="k">for</span> <span class="n">streetName</span> <span class="ow">in</span> <span class="n">nodeNames</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodeNames</span><span class="p">[</span><span class="n">streetName</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>	<span class="c">#2 or more streets with the same name</span>
+			<span class="n">equivalentStreetsList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nodeNames</span><span class="p">[</span><span class="n">streetName</span><span class="p">])</span>
+	
+	<span class="n">redundantNodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c">#list of nodes to remove from graph</span>
+	<span class="k">for</span> <span class="n">equivStreets</span> <span class="ow">in</span> <span class="n">equivalentStreetsList</span><span class="p">:</span>
+		<span class="c">#processed = set()</span>
+		<span class="n">copiedList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">equivStreets</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">copiedList</span><span class="p">:</span>
+			<span class="n">intersections</span> <span class="o">=</span> <span class="p">[</span><span class="n">joins</span> <span class="k">for</span> <span class="n">joins</span> <span class="ow">in</span> <span class="n">copiedList</span> <span class="k">if</span> <span class="n">joins</span> <span class="o">!=</span> <span class="n">node</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">nds</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">joins</span><span class="o">.</span><span class="n">nds</span><span class="p">))</span> <span class="p">]</span>
+			<span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">intersections</span><span class="p">:</span>
+				<span class="n">node</span><span class="o">.</span><span class="n">nds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">nds</span><span class="p">)</span>
+				<span class="n">node</span><span class="o">.</span><span class="n">nds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">nds</span><span class="p">))</span>
+				<span class="n">redundantNodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+				<span class="n">copiedList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>	
+	<span class="k">return</span> <span class="n">redundantNodes</span>
+
+</div>
+<div class="viewcode-block" id="convertMappingToGraph"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.convertMappingToGraph">[docs]</a><span class="k">def</span> <span class="nf">convertMappingToGraph</span><span class="p">(</span><span class="n">nodeToWayMap</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Creates a networkx graph from a dictionary that maps nodes to their parent roads. The dual graph (which represents roads as nodes and intersections as edges) is created by identifying intersecting roads by the presence of shared nodes (latlng) points and then creating edges between all possible combinations of intersecting roads.</span>
+<span class="sd">		:param nodeToWayMap: A dictionary that maps nodes (latlng) points to the roads they fall in.</span>
+<span class="sd">		:rtype: A networkx dual graph of the city.</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">networkxGraph</span> <span class="o">=</span> <span class="n">networkx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+	<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">nodeToWayMap</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>   <span class="c">#Get the Roads/Ways which are values in the dictionary</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>				<span class="c">#There is only one road pointed to by this node</span>
+			<span class="n">networkxGraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">networkxGraph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>	<span class="c">#Add all possible combinations of two roads (intersections) as edges to the network</span>
+	<span class="n">nodeToWayMap</span> <span class="o">=</span> <span class="bp">None</span>   <span class="c">#Optimization?	</span>
+	<span class="k">return</span> <span class="n">networkxGraph</span>
+</div>
+<div class="viewcode-block" id="removeIsolatedNodes"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.removeIsolatedNodes">[docs]</a><span class="k">def</span> <span class="nf">removeIsolatedNodes</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Removes zero-degree nodes from a graph</span>
+
+<span class="sd">		:param graph: The networkx graph to filter</span>
+<span class="sd">		:rtype: The list of isolated nodes in the graph</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">zeroDegreeNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span> <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+	<span class="n">graph</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">zeroDegreeNodes</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">zeroDegreeNodes</span>
+</div>
+<div class="viewcode-block" id="removeNodesWithSpecificHighwayTags"><a class="viewcode-back" href="../OSMCleaner.html#OSMCleaner.removeNodesWithSpecificHighwayTags">[docs]</a><span class="k">def</span> <span class="nf">removeNodesWithSpecificHighwayTags</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">tag</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Removes nodes with a specific property from a graph</span>
+
+<span class="sd">		:param graph: The networkx graph to filter</span>
+<span class="sd">		:param tag: The tag to filter on</span>
+<span class="sd">		:rtype: The list of nodes with the tag which have been removed</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">nodesWithMatchingTag</span> <span class="o">=</span> <span class="n">getNodesWithHighWayTag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+	<span class="n">graph</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">nodesWithMatchingTag</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">nodesWithMatchingTag</span>
+
+<span class="c">#Add function for collapsing equivalent nodes</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

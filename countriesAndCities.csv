@@ -1,0 +1,150 @@
+"city","country","continent","structure","founding century"
+"gdansk","Poland","Europe","unplanned",10
+"new-york","USA","North America","planned",17
+"manhattan","USA","North America","planned",17
+"tampa","USA","North America","unplanned",19
+"london","UK","Europe","unplanned",1
+"santa-barbara","USA","North America","unplanned",19
+"indianapolis","USA","North America","planned",19
+"detroit","USA","North America","unplanned",18
+"dubai","United Arab Emirates","Asia","unplanned",19
+"abu-dhabi","United Arab Emirates","Asia","unplanned",19
+"melbourne","Australia","Australia","planned",19
+"stockholm","Sweden","Europe","planned",12
+"milan","Italy","Europe","planned",15
+"reno","USA","North America","unplanned",19
+"prague","Czech Republic","Europe","unplanned",9
+"taipei","Taiwan","Asia","unplanned",18
+"terre-haute","USA","North America","unplanned",19
+"miami","USA","North America","unplanned",16
+"lyon","France","Europe","unplanned",19
+"chicago","USA","North America","partly",19
+"ankara","Turkey","Asia","unplanned",11
+"sacramento","USA","North America","unplanned",19
+"amsterdam","The Netherlands","Europe","unplanned",13
+"portland","USA","North America","unplanned",19
+"as-suwayda","Syria","Asia","unplanned",2
+"phoenix","USA","North America","planned",19
+"dallas","USA","North America","partly",19
+"beijing","China","Asia","unplanned",15
+"munich","Germany","Europe","unplanned",12
+"damascus","Syria","Asia","unplanned",0
+"hong-kong","Hong Kong","Asia","partly",19
+"kamloops","Canada","North America","unplanned",19
+"helsinki","Finland","Europe","planned",16
+"quito-ecuador","Ecuador","South America","unplanned",16
+"hamburg","Germany","Europe","unplanned",5
+"philadelphia","USA","North America","planned",17
+"paris","France","Europe","unplanned",0
+"chengdu","China","Asia","unplanned",0
+"wroclaw","Poland","Europe","unplanned",10
+"los-angeles","USA","North America","unplanned",18
+"glasgow","UK","Europe","unplanned",0
+"bangkok","Thailand","Asia","unplanned",20
+"calgary","Canada","North America","unplanned",19
+"rome","Italy","Europe","unplanned",8
+"santiago","Chile","South America","unplanned",16
+"mobile-al","USA","North America","planned",19
+"moscow","Russia","Europe","planned",12
+"berlin","Germany","Europe","unplanned",13
+"budapest","Hungary","Europe","unplanned",19
+"lexington","USA","North America","unplanned",18
+"austin","USA","North America","planned",19
+"lagos","Nigeria","Africa","unplanned",15
+"macon-ga","USA","North America","unplanned",19
+"jakarta","Indonesia","Asia","unplanned",16
+"siem-reap","Cambodia","Asia","unplanned",20
+"brasilia-brazil","Brazil","South America","planned",20
+"florence","Italy","Europe","unplanned",0
+"toronto","Canada","North America","partly",18
+"dushanbe","Tajikistan","Asia","unplanned",20
+"boston","USA","North America","partly",17
+"bordeaux","France","Europe","unplanned",6
+"san-diego-tijuana","Mexico","North America","unplanned",18
+"lille","France","Europe","unplanned",11
+"monaco","Monaco","Europe","partly",13
+"rio-de-janeiro","Brazil","South America","unplanned",16
+"state-college-pa","USA","North America","unplanned",19
+"tokyo","Japan","Asia","unplanned",15
+"vancouver","Canada","North America","unplanned",19
+"columbus-oh","USA","North America","unplanned",19
+"seoul","South Korea","Asia","unplanned",0
+"las-vegas","USA","North America","partly",20
+"johannesburg","South Africa","Africa","unplanned",19
+"venice","Italy","Europe","unplanned",5
+"tehran","Iran","Asia","partly",9
+"bogota","Colombia","South America","unplanned",16
+"leeds","UK","Europe","unplanned",5
+"chennai","India","Asia","unplanned",17
+"dc-baltimore","USA","North America","partly",18
+"sofia","Bulgaria","Europe","unplanned",19
+"almaty","Kazakhstan","Asia","unplanned",19
+"lima","Peru","South America","unplanned",16
+"sarajevo","Bosnia and Herzegovina","Europe","unplanned",15
+"strasbourg","France","Europe","unplanned",13
+"kabul","Afghanistan","Asia","unplanned",16
+"montpellier","France","Europe","unplanned",8
+"barcelona","Spain","Europe","partly",0
+"istanbul","Turkey","Asia","unplanned",7
+"brussels","Belgium","Europe","unplanned",10
+"new-delhi","India","Asia","planned",20
+"buenos-aires","Argentina","South America","partly",16
+"victoria","Canada","North America","unplanned",19
+"baghdad","Iraq","Asia","planned",8
+"krakow","Poland","Europe","unplanned",13
+"shanghai","China","Asia","unplanned",13
+"cartagena","Spain","Europe","unplanned",16
+"copenhagen","Denmark","Europe","unplanned",12
+"curitiba-brazil","Brazil","South America","planned",17
+"nairobi","Kenya","Africa","unplanned",19
+"milwaukee","USA","North America","unplanned",19
+"cleveland","USA","North America","unplanned",18
+"seattle","USA","North America","unplanned",19
+"reykjavik","Iceland","Europe","unplanned",18
+"port-au-prince","Haiti","North America","unplanned",18
+"sydney","Australia","Australia","unplanned",18
+"cairo","Egypt","Africa","unplanned",1
+"edinburgh","UK","Europe","unplanned",11
+"san-francisco","USA","North America","partly",18
+"sao-paulo","Brazil","South America","unplanned",16
+"riyadh","Saudi Arabia","Asia","unplanned",18
+"atlanta","USA","North America","unplanned",19
+"newcastle","UK","Europe","unplanned",2
+"pittsburgh","USA","North America","partly",18
+"mpls-stpaul","USA","North America","partly",19
+"montreal","Canada","North America","unplanned",17
+"houston","USA","North America","partly",19
+"athens","Greece","Europe","unplanned",0
+"lisbon","Portugal","Europe","planned",13
+"mexico-city","Mexico","North America","planned",16
+"toulouse","France","Europe","unplanned",0
+"manchester","UK","Europe","unplanned",1
+"honolulu","USA","North America","unplanned",20
+"st-louis","USA","North America","unplanned",18
+"campo-grande","Brazil","South America","unplanned",19
+"karlsruhe","Germany","Europe","planned",18
+"charlotte","USA","North America","unplanned",19
+"nazareth","Israel","Asia","unplanned",11
+"evansville","USA","North America","unplanned",19
+"frankfurt","Germany","Europe","unplanned",15
+"auckland","New Zealand",,"unplanned",19
+"new-orleans","USA","North America","planned",18
+"cincinnati","USA","North America","unplanned",18
+"singapore","Singapore","Asia","partly",19
+"madrid","Spain","Europe","unplanned",9
+"warsaw","Poland","Europe","unplanned",13
+"porto","Portugal","Europe","unplanned",12
+"denver-boulder","USA","North America","unplanned",19
+"marseille","France","Europe","unplanned",0
+"brno","Czech Republic","Europe","unplanned",10
+"osaka","Japan","Asia","unplanned",7
+"humboldt-ca","USA","North America","unplanned",9
+"mumbai","India","Asia","partly",14
+"santo-domingo","Dominican Republic","North America","unplanned",15
+"manila","Philippines","Asia","planned",16
+"bengaluru","India","Asia","unplanned",16
+"birmingham","UK","Europe","unplanned",7
+"rotterdam","The Netherlands","Europe","unplanned",13
+"st-petersburg","Russia","Europe","planned",18
+"bratislava","Slovakia","Europe","unplanned",15
+"district-of-columbia","USA","North America","planned",18

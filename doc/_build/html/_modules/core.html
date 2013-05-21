@@ -1,0 +1,236 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>core &mdash; City Complexities 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="City Complexities 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for core</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This city class handles all processing and calculation of metrics for graphs.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="kn">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">OSMCleaner</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="City"><a class="viewcode-back" href="../core.html#core.City">[docs]</a><span class="k">class</span> <span class="nc">City</span><span class="p">:</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		City class; this takes in a graph and the name of the city</span>
+<span class="sd">		and calculates all the information for that graph. Each city contains the following fields: name, graphProperties, rawInformation and normalizedInformation.</span>
+<span class="sd">		Cities contain an opStatus field in their rawInformation field that indicates whether the graph for that city was processed successfully.</span>
+
+<span class="sd">		:param name: The name of the city</span>
+<span class="sd">		:param graph: The networkx graph for that city</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+		<span class="n">removeIsolatedNodes</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="c">#Do this so that the graph is mostly connected</span>
+		<span class="c">#self.zeroDegrees = removeIsolatedNodes(graph) #Optimization</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">graphProperties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processGraphMetrics</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+		<span class="k">print</span> <span class="s">&quot;Processing Graph for &quot;</span><span class="p">,</span> <span class="n">name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rawInformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcGraphInformation</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fullyConnectedGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processFullyConnectedGraph</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">normalizedInformation</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">normalizeValues</span><span class="p">()</span>
+	
+<div class="viewcode-block" id="City.processGraphMetrics"><a class="viewcode-back" href="../core.html#core.City.processGraphMetrics">[docs]</a>	<span class="k">def</span> <span class="nf">processGraphMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">			Calculates graph metrics like number of nodes and edges, total degree, average degree, connected components and the size of the giant components.</span>
+
+<span class="sd">			:param graph: the networkx graph for a city</span>
+<span class="sd">			:rtype: A dictionary containing processed metrics for the graph</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">graphProperties</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">connectedComponents</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numEdges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numNodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+		<span class="c">#graphProperties[&#39;clustering&#39;] = nx.average_clustering(graph)</span>
+		<span class="c">#graphProperties[&#39;isConnected&#39;] = nx.is_connected(graph)</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;TotalDegree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;AverageDegree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;TotalDegree&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numNodes&#39;</span><span class="p">]</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;lenGiantComponent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectedComponents</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="c">#graphProperties[&#39;ratioGiantCompToGgraph&#39;] = float(graphProperties[&#39;lenGiantComponent&#39;]) / graphProperties[&#39;numNodes&#39;]</span>
+		<span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numConnectedComponents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectedComponents</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">graphProperties</span>
+</div>
+	<span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">npArray</span><span class="p">):</span>
+		<span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">npArray</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">npArray</span><span class="p">))</span>
+
+	<span class="k">def</span> <span class="nf">gini_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numpyArray</span><span class="p">):</span>
+		<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">numpyArray</span><span class="p">)</span>
+		<span class="n">rs</span> <span class="o">=</span> <span class="n">numpyArray</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
+		<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+			<span class="n">total</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">numpyArray</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+		<span class="n">gini</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">numpyArray</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+		<span class="k">return</span> <span class="n">gini</span>	
+
+<div class="viewcode-block" id="City.processFullyConnectedGraph"><a class="viewcode-back" href="../core.html#core.City.processFullyConnectedGraph">[docs]</a>	<span class="k">def</span> <span class="nf">processFullyConnectedGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodesInConnGraph</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">			Calculates graph metrics for a full connected graph of size nodesInConnGraph. This is used to normalize values.</span>
+
+<span class="sd">			:param nodesInConnGraph: The number of nodes the fully connected graph should have.</span>
+<span class="sd">			:rtype: A dictionary containing processed values.</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">print</span> <span class="s">&quot;Processing fully connected Graph for &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+		<span class="n">prob</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numNodes&#39;</span><span class="p">]</span>
+		<span class="n">centrality</span> <span class="o">=</span> <span class="p">[</span><span class="n">prob</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphProperties</span><span class="p">[</span><span class="s">&#39;numNodes&#39;</span><span class="p">]</span>
+		<span class="n">centrality_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centrality</span><span class="p">)</span> <span class="c">#Already a normalized np array</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">centrality_values</span><span class="p">)</span> 
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;stddev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centrality_values</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centrality_values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centrality_values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">centrality_values</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c">#Zero is value for normalized Information so this needs fixing</span>
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;cv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;stddev&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;mean&#39;</span><span class="p">]</span>
+		<span class="n">results</span><span class="p">[</span><span class="s">&#39;gini&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gini_coeff</span><span class="p">(</span><span class="n">centrality_values</span><span class="p">)</span>
+		<span class="c">#Optimization ?</span>
+		<span class="n">centrality</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="n">centrality_values</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="n">distribution</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="k">return</span> <span class="n">results</span>
+</div>
+<div class="viewcode-block" id="City.calcGraphInformation"><a class="viewcode-back" href="../core.html#core.City.calcGraphInformation">[docs]</a>	<span class="k">def</span> <span class="nf">calcGraphInformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">			Calcuates graph metrics for the input graph</span>
+
+<span class="sd">			:param graph: The graph to process.</span>
+<span class="sd">			:rtype: A dictionary containing processed values. One of the calculations is the eigenvector centrality using the power law. If the values for a graph don&#39;t converge in less than 1000 iterations, this operation fails and the city&#39;s opStatus field will be false.</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="c">#Calculates all the values for a graph</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">success</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="k">try</span><span class="p">:</span> 
+			<span class="n">centrality</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">eigenvector_centrality</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="c">#A dictionary</span>
+
+			<span class="n">centrality_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centrality</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>	<span class="c">#numpy ndarray</span>
+			<span class="n">normalizedValues</span> <span class="o">=</span> <span class="n">centrality_values</span> <span class="o">/</span> <span class="n">centrality_values</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;entropy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">normalizedValues</span><span class="p">)</span>
+			<span class="c">#results[&#39;perplexity&#39;] = distribution.perplexity()</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;stddev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalizedValues</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;mean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalizedValues</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;range&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalizedValues</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">normalizedValues</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c">#Zero is value for normalized Information so this needs fixing</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;cv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;stddev&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;mean&#39;</span><span class="p">]</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;gini&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gini_coeff</span><span class="p">(</span><span class="n">normalizedValues</span><span class="p">)</span>
+			<span class="c">#Optimization ?</span>
+			<span class="n">centrality</span> <span class="o">=</span> <span class="bp">None</span>
+			<span class="n">centrality_values</span> <span class="o">=</span> <span class="bp">None</span>
+			<span class="n">normalizedValues</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="k">finally</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">results</span> <span class="o">==</span> <span class="p">{}:</span>
+				<span class="n">success</span> <span class="o">=</span> <span class="bp">False</span>
+			<span class="n">results</span><span class="p">[</span><span class="s">&#39;opStatus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">success</span>  <span class="c">#Status of calcGraphInfo</span>
+			<span class="k">return</span> <span class="n">results</span>
+</div>
+<div class="viewcode-block" id="City.normalizeValues"><a class="viewcode-back" href="../core.html#core.City.normalizeValues">[docs]</a>	<span class="k">def</span> <span class="nf">normalizeValues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">			Normalizes city data information; this is achieved by dividing the rawInformation metrics with the data from the fully connected graph.</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="n">inf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;opStatus&#39;</span><span class="p">:</span>
+				<span class="k">continue</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fullyConnectedGraph</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">normalizedInformation</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">inf</span>
+			<span class="k">else</span><span class="p">:</span>			
+				<span class="bp">self</span><span class="o">.</span><span class="n">normalizedInformation</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rawInformation</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fullyConnectedGraph</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>			
+		
+
+<span class="c">#bara = nx.barabasi_albert_graph(40,30)</span>
+<span class="c">#cmpl = nx.complete_graph(20)</span>
+<span class="c">#print &quot;done&quot;</span>
+<span class="c">#u = City(&#39;bara&#39;, bara)</span>
+<span class="c">#u.normalizedInformation</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">City Complexities 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Abdulfatai Popoola.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
